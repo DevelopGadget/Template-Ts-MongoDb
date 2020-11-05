@@ -1,0 +1,1 @@
+run-rs --keep --mongod --dbpath C:\Program Files\MongoDB\Server\4.2\data

@@ -1,0 +1,20 @@
+{
+  "watch": [
+    "src"
+  ],
+  "ext": "ts",
+  "ignore": [
+    "src/public"
+  ],
+  "exec": "ts-node -- ./src/server.ts --stack-size=16000",
+  "env": {
+    "EMAIL": "{YourEmail}",
+    "ENCRYPT": "{YorKey}",
+    "MONGO": "{YourMongo}",
+    "FIREBASE": "{YourFirebase}",
+    "SENDGRID_API_KEY": "{YourSendGrid}",
+    "TEMPLATE": "{YourSendGridTemplate}",
+    "TOKEN": "{YourKeyToken}",
+    "PORT": "{YourPort}",
+  }
+}

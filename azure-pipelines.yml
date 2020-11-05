@@ -1,0 +1,70 @@
+trigger:
+  - master
+
+pool:
+  vmImage: "ubuntu-latest"
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "12.x"
+    displayName: "Install Node.js"
+
+  - script: |
+      npm install
+      npm run build
+    displayName: "npm install and build"
+
+  - script: |
+      npm install uglifyjs-folder -g
+    displayName: "npm install uglifyjs"
+
+  - script: |
+      uglifyjs-folder ./dist -yeo dist -x .js  --pattern "**/*.js,!node_modules/**/*.*.js,!node_modules/**/*.js"
+    displayName: 'npm uglifyjs'
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: "dist/"
+      contents: "**"
+      targetFolder: "$(Build.ArtifactStagingDirectory)"
+    displayName: "Copy Dist"
+
+  - task: Bash@3
+    inputs:
+      targetType: "inline"
+      script: mv package.pro.json $(Build.ArtifactStagingDirectory)/package.json
+    displayName: "Copy package"
+
+  - task: DownloadSecureFile@1
+    name: "KeyPublic"
+    displayName: "Download secure file public.key"
+    inputs:
+      secureFile: public.key
+
+  - task: DownloadSecureFile@1
+    name: "PrivateKey"
+    displayName: "Download secure file private.key"
+    inputs:
+      secureFile: private.key
+
+  - task: DownloadSecureFile@1
+    name: "Sdk"
+    displayName: "Download secure file SDK.json"
+    inputs:
+      secureFile: SDK.json
+
+  - task: Bash@3
+    inputs:
+      targetType: "inline"
+      script: |
+        mv $(KeyPublic.secureFilePath) $(Build.ArtifactStagingDirectory)/public.key
+        mv $(Sdk.secureFilePath) $(Build.ArtifactStagingDirectory)/SDK.json
+        mv $(PrivateKey.secureFilePath) $(Build.ArtifactStagingDirectory)/private.key
+    displayName: "Copy secrets"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+      ArtifactName: "production"
+      publishLocation: "Container"
